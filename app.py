@@ -1,18 +1,23 @@
-from flask import Flask
-from flask_restful import Api, Resource
+from flask import Flask, session, request
 
 app = Flask(__name__)
-api = Api(app)
+app.config['SECRET_KEY'] = 'mysecretkey'
 
-class HelloWorld(Resource):
-    def get(self):
-        return {'message': 'Hello, World!'}
+@app.route('/')
+def index():
+    return f"App Config: {app.config['SECRET_KEY']}"
 
-api.add_resource(HelloWorld, '/')
+@app.route('/set_global')
+def set_global():
+    session['message'] = "Hello, this is a global variable!"
+    return "Global variable set!"
 
-@app.route('/<name>')
-def print_name(name):
-    return 'Hi , {}'.format(name)
+@app.route('/get_global')
+def get_global():
+    message = session.get('message', "No global variable set!")
+    return message
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    with app.app_context():
+        print(f"App Context: {app.config['SECRET_KEY']}")
     app.run(debug=True)
